@@ -184,8 +184,8 @@ textarea{resize:vertical;min-height:96px}
       <div class="rec"><i></i> REC / CAM LIVE</div>
       <div id="clock"></div>
     </div>
-    <button class="btn" id="btnPerfil"> Editar Perfil</button>
-    <button class="btn danger" id="btnBaja"> Eliminar Cuenta</button>
+    <button class="btn" id="btnPerfil">Editar Mi Perfil</button>
+    <button class="btn danger" id="btnBaja">Eliminar Mi Cuenta</button>
     <button class="btn danger" id="logout"><svg class="i"><use href="#i-power"/></svg> CERRAR TURNO</button>
   </header>
 
@@ -459,7 +459,7 @@ function renderFeed(){
       <div class="bot"><span class="badge">${esc(String(r.nivel_riesgo||'').toUpperCase())}</span>
         <span class="who"><svg class="i"><use href="#i-user"/></svg>${esc(r.guardias?.nombre||'Anónimo')}</span></div>
       <div class="stamp">${d.toLocaleDateString('es-MX')} ${d.toLocaleTimeString('es-MX')}${r.resuelto?' | RESUELTO':''}</div>
-      ${isMine(r)?`<div class="acts"><button class="btn sm" data-act="edit" data-id="${esc(r.id)}">✏️ Editar</button><button class="btn sm danger" data-act="del" data-id="${esc(r.id)}">🗑️ Borrar</button></div>`:''}</article>`;
+      ${isMine(r)?`<div class="acts"><button class="btn sm" data-act="edit" data-id="${esc(r.id)}">Editar</button><button class="btn sm danger" data-act="del" data-id="${esc(r.id)}">Borrar</button></div>`:''}</article>`;
   }).join('') : `<div class="empty"><svg class="i"><use href="#i-radar"/></svg>SIN ANOMALÍAS DETECTADAS<br>Todas las cámaras reportan normalidad.</div>`;
 }
 $('filter').onchange=renderFeed;
