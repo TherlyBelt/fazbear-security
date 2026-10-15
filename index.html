@@ -70,7 +70,7 @@ main{display:grid;gap:22px;margin-top:22px;grid-template-columns:1fr}
 form{padding:16px 22px 22px;display:grid;gap:14px}
 form[hidden],[hidden]{display:none!important}
 label,.lbl{display:block;font-size:12px;color:var(--amber);letter-spacing:.1em;margin-bottom:4px;text-shadow:0 0 5px rgba(245,158,11,.5)}
-select,input[type=text],input[type=password],input[type=email],textarea{width:100%;padding:9px 10px;background:#02090a;border:1px solid var(--dim);border-radius:0;box-shadow:inset 0 0 12px rgba(0,0,0,.9);caret-color:var(--green)}
+select,input[type=text],input[type=password],textarea{width:100%;padding:9px 10px;background:#02090a;border:1px solid var(--dim);border-radius:0;box-shadow:inset 0 0 12px rgba(0,0,0,.9);caret-color:var(--green)}
 select{appearance:none;background-image:linear-gradient(45deg,transparent 50%,var(--green) 50%),linear-gradient(135deg,var(--green) 50%,transparent 50%);background-position:calc(100% - 17px) 55%,calc(100% - 12px) 55%;background-size:5px 5px;background-repeat:no-repeat;padding-right:32px}
 select option{background:#02090a}
 textarea{resize:vertical;min-height:96px}
@@ -146,31 +146,31 @@ textarea{resize:vertical;min-height:96px}
 </svg>
 <div class="vignette"></div><div class="roll"></div>
 
-<!-- Modal de credencial (Supabase Auth) -->
+<!-- Modal de credencial -->
 <div class="modal" id="login" role="dialog" aria-modal="true" aria-labelledby="loginTitle">
   <div class="card bevel">
     <div class="panel-title" id="loginTitle"><svg class="i"><use href="#i-id"/></svg> FAZBEAR ENTERTAINMENT - FICHAJE</div>
     <div class="tabs" role="tablist">
-      <button role="tab" id="tabA" aria-selected="true" data-tab="a">INICIAR SESIÓN</button>
+      <button role="tab" id="tabA" aria-selected="true" data-tab="a">PERFIL EXISTENTE</button>
       <button role="tab" id="tabB" aria-selected="false" data-tab="b">NUEVO GUARDIA</button>
     </div>
-    <p class="intro">Inicia sesión para ver la bitácora y firmar reportes. Solo tú puedes editar o eliminar lo que firmas.</p>
-    <form id="formA">
-      <div><label for="emailA">CORREO</label><input type="email" id="emailA" autocomplete="email" required></div>
+    <p class="intro">Identifícate con tu contraseña para iniciar turno. Solo tú puedes abrir tu perfil y firmar reportes.</p>
+    <form id="formA" autocomplete="off">
+      <div><label for="selGuardia">GUARDIA REGISTRADO</label><select id="selGuardia" required></select></div>
       <div><label for="passA">CONTRASEÑA</label><input type="password" id="passA" autocomplete="current-password" required></div>
       <div class="err" id="errA" role="alert"></div>
       <button class="btn" type="submit"><svg class="i"><use href="#i-shield"/></svg> INICIAR TURNO</button>
     </form>
-    <form id="formB" hidden>
+    <form id="formB" autocomplete="off" hidden>
       <div><label for="newNombre">NOMBRE DEL GUARDIA</label><input type="text" id="newNombre" maxlength="40" placeholder="Ej: Mike Schmidt" required></div>
-      <div><label for="emailB">CORREO</label><input type="email" id="emailB" autocomplete="email" required></div>
-      <div><label for="newTurno">TURNO ASIGNADO</label><select id="newTurno"></select></div>
+      <div><label for="newTurno">TURNO ASIGNADO</label>
+        <select id="newTurno"><option>Nocturno (12 AM - 6 AM)</option><option>Vespertino (6 PM - 12 AM)</option><option>Madrugada (6 AM - 12 PM)</option></select></div>
       <div class="row2">
         <div><label for="passB">CONTRASEÑA</label><input type="password" id="passB" autocomplete="new-password" minlength="6" required></div>
         <div><label for="passB2">CONFIRMAR</label><input type="password" id="passB2" autocomplete="new-password" minlength="6" required></div>
       </div>
       <div class="err" id="errB" role="alert"></div>
-      <button class="btn" type="submit"><svg class="i"><use href="#i-send"/></svg> REGISTRAR GUARDIA</button>
+      <button class="btn" type="submit"><svg class="i"><use href="#i-send"/></svg> REGISTRAR EN LA NUBE</button>
     </form>
   </div>
 </div>
@@ -184,6 +184,8 @@ textarea{resize:vertical;min-height:96px}
       <div class="rec"><i></i> REC / CAM LIVE</div>
       <div id="clock"></div>
     </div>
+    <button class="btn" id="btnPerfil">✏️ Editar Mi Perfil</button>
+    <button class="btn danger" id="btnBaja">🗑️ Eliminar Mi Cuenta</button>
     <button class="btn danger" id="logout"><svg class="i"><use href="#i-power"/></svg> CERRAR TURNO</button>
   </header>
 
@@ -216,10 +218,6 @@ textarea{resize:vertical;min-height:96px}
         <select id="filter" aria-label="Filtrar por riesgo"><option value="">TODOS LOS NIVELES</option><option>Bajo</option><option>Medio</option><option>Alto</option><option>Crítico</option></select>
       </div>
       <div class="grid" id="feed"></div>
-    </section>
-    <section class="bevel" style="grid-column:1/-1" aria-labelledby="hG">
-      <h2 class="panel-title" id="hG"><svg class="i"><use href="#i-user"/></svg> PERSONAL DE VIGILANCIA (<span id="gCount">0</span>)</h2>
-      <div class="guards" id="guards"></div>
     </section>
   </main>
 </div>
@@ -256,7 +254,7 @@ textarea{resize:vertical;min-height:96px}
       <div><label for="gNombre">NOMBRE</label><input type="text" id="gNombre" maxlength="40" required></div>
       <div class="row2">
         <div><label for="gTurno">TURNO</label><select id="gTurno"></select></div>
-        <div><label for="gEstado">ESTADO</label><select id="gEstado"><option>Activo</option><option>Inactivo</option></select></div>
+        
       </div>
       <div class="err" id="errG" role="alert"></div>
       <div class="row2"><button class="btn" type="submit">GUARDAR CAMBIOS</button><button class="btn" type="button" data-close>CANCELAR</button></div>
@@ -270,68 +268,129 @@ textarea{resize:vertical;min-height:96px}
 const SUPABASE_URL = 'https://uuijxrnjvzaxystwgnxt.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_19uR7H7v1X7QPCo9Fy7RAw_KIEgMbmg';
 
-const sb = (typeof supabase !== 'undefined') ? supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
+
+const LOCAL = !SUPABASE_URL || !SUPABASE_ANON_KEY || typeof supabase === 'undefined';
+const sb = LOCAL ? null : supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 const $ = id => document.getElementById(id);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const RISK = {'Bajo':'bajo','Medio':'medio','Alto':'alto','Crítico':'critico'};
-const TIPOS  = ['Desplazamiento no autorizado','Glitch visual','Audio extraño','Apagón'];
-const TURNOS = ['Nocturno (12 AM - 6 AM)','Vespertino (6 PM - 12 AM)','Madrugada (6 AM - 12 PM)'];
-const GUARD_COLS = 'id,user_id,nombre,turno,nivel_acceso,estado';
+
+/* ---------- Capa de datos (Supabase o local) ---------- */
+
+const ago = min => new Date(Date.now() - min*60000).toISOString();
+const SEED = {
+  guardias: [
+    {id:1, nombre:'Mike Schmidt',      turno:'Nocturno (12 AM - 6 AM)',   nivel_acceso:'Alto',  estado:'Activo', contrasena:'1234'},
+    {id:2, nombre:'Jeremy Fitzgerald', turno:'Vespertino (6 PM - 12 AM)', nivel_acceso:'Medio', estado:'Activo', contrasena:'1234'}
+  ],
+  camaras: [
+    {id:1, codigo_camara:'CAM-01', nombre_zona:'Showstage'},
+    {id:2, codigo_camara:'CAM-02', nombre_zona:'Comedor'},
+    {id:3, codigo_camara:'CAM-03', nombre_zona:'Pirate Cove'},
+    {id:4, codigo_camara:'CAM-04', nombre_zona:'Pasillo Este'},
+    {id:5, codigo_camara:'CAM-05', nombre_zona:'Oficina'}
+  ],
+  animatronicos: [
+    {id:1, nombre:'Freddy', ubicacion_inicial:'Showstage',   nivel_actividad:'Medio'},
+    {id:2, nombre:'Bonnie', ubicacion_inicial:'Showstage',   nivel_actividad:'Alto'},
+    {id:3, nombre:'Chica',  ubicacion_inicial:'Comedor',     nivel_actividad:'Medio'},
+    {id:4, nombre:'Foxy',   ubicacion_inicial:'Pirate Cove', nivel_actividad:'Alto'}
+  ],
+  anomalias: [
+    {id:1, guardia_id:1, camara_id:3, animatronico_id:4, tipo_anomalia:'Desplazamiento no autorizado', nivel_riesgo:'Crítico', descripcion:'Foxy salió de Pirate Cove.', resuelto:false, fecha_registro:ago(180)},
+    {id:2, guardia_id:1, camara_id:1, animatronico_id:2, tipo_anomalia:'Glitch visual',                nivel_riesgo:'Medio',   descripcion:'Imagen distorsionada en el escenario.', resuelto:false, fecha_registro:ago(90)},
+    {id:3, guardia_id:2, camara_id:2, animatronico_id:3, tipo_anomalia:'Audio extraño',                nivel_riesgo:'Bajo',    descripcion:'Ruidos metálicos en el comedor.', resuelto:true,  fecha_registro:ago(30)}
+  ]
+};
+const STORE_KEY = 'fz_local_v2';
+const store = LOCAL ? (JSON.parse(localStorage.getItem(STORE_KEY) || 'null') || SEED) : null;
+const persist = () => LOCAL && localStorage.setItem(STORE_KEY, JSON.stringify(store));
+const pub = ({contrasena,...g}) => g;                       // nunca exponer la contraseña a la interfaz
+const GUARD_COLS = 'id,nombre,turno,nivel_acceso,estado';   // columnas visibles de guardias
+const setSes = g => { localStorage.setItem('guardia_activa_id',g.id); localStorage.setItem('guardia_activa_nombre',g.nombre); };
+const clearSes = () => { localStorage.removeItem('guardia_activa_id'); localStorage.removeItem('guardia_activa_nombre'); };
 const camLabel = c => c ? `${c.codigo_camara} - ${c.nombre_zona}` : 'CAM ??';
-const opts = (arr, cur) => (cur && !arr.includes(cur) ? [...arr, cur] : arr).map(v=>`<option${v===cur?' selected':''}>${esc(v)}</option>`).join('');
 
-let user = null;    // usuario de supabase.auth (auth.getUser())
-let guard = null;   // fila propia en la tabla guardias
-let rows = [], guardias = [], cams = [], anims = [], editId = null, channel = null;
+const db = {
+  async guardias(){
+    if(LOCAL) return store.guardias.map(pub);
+    const {data,error}=await sb.from('guardias').select(GUARD_COLS).order('nombre'); if(error) throw error; return data; },
+  /* Registro: inserta directamente en la tabla guardias (sin Supabase Auth) */
+  async registrar(nombre,turno,pass){
+    if(LOCAL){ const g={id:Date.now(),nombre,turno,nivel_acceso:null,estado:null,contrasena:pass};
+      store.guardias.push(g); persist(); setSes(g); return pub(g); }
+    const {data,error}=await sb.from('guardias').insert({nombre,turno,contrasena:pass}).select(GUARD_COLS).single();
+    if(error) throw error; setSes(data); return data; },
+  /* Login: coincidencia de id (elegido en la lista) + contrasena en la tabla guardias */
+  async entrar(id,pass){
+    if(LOCAL){ const g=store.guardias.find(x=>String(x.id)===String(id) && x.contrasena===pass);
+      if(!g) throw new Error('Contraseña incorrecta.');
+      setSes(g); return pub(g); }
+    const {data,error}=await sb.from('guardias').select(GUARD_COLS).eq('id',id).eq('contrasena',pass).maybeSingle();
+    if(error) throw error;
+    if(!data) throw new Error('Contraseña incorrecta.');
+    setSes(data); return data; },
+  async sesion(){
+    const id=localStorage.getItem('guardia_activa_id'); if(!id) return null;
+    if(LOCAL){ const g=store.guardias.find(x=>String(x.id)===id); return g?pub(g):null; }
+    const {data}=await sb.from('guardias').select(GUARD_COLS).eq('id',id).maybeSingle(); return data; },
+  async salir(){ clearSes(); },
+  async catalogo(t){ if(LOCAL) return store[t]; const {data,error}=await sb.from(t).select('*').order('id'); if(error) throw error; return data; },
+  async anomalias(){
+    if(LOCAL) return store.anomalias.map(a=>({...a,
+      guardias:store.guardias.find(g=>g.id==a.guardia_id)||null, camaras:store.camaras.find(c=>c.id==a.camara_id)||null, animatronicos:store.animatronicos.find(n=>n.id==a.animatronico_id)||null}))
+      .sort((a,b)=>b.fecha_registro.localeCompare(a.fecha_registro));
+    const {data,error}=await sb.from('anomalias').select('*, guardias(nombre, turno), camaras(codigo_camara, nombre_zona), animatronicos(nombre)').order('fecha_registro',{ascending:false}).limit(100);
+    if(error) throw error; return data; },
+  async addAnomalia(row){
+    if(LOCAL){ store.anomalias.push({id:Date.now(),resuelto:false,...row}); persist(); return; }
+    const {error}=await sb.from('anomalias').insert(row); if(error) throw error; },
+  async updateAnomalia(id,f){
+    if(LOCAL){ const a=store.anomalias.find(x=>x.id==id); if(!a||a.guardia_id!=activeId()) throw new Error('Sin permiso.'); Object.assign(a,f); persist(); return; }
+    const {data,error}=await sb.from('anomalias').update(f).eq('id',id).eq('guardia_id',activeId()).select();
+    if(error) throw error; if(!data.length) throw new Error('No se actualizó ningún registro (revisa las políticas RLS de UPDATE).'); },
+  async deleteAnomalia(id){
+    if(LOCAL){ const i=store.anomalias.findIndex(x=>x.id==id&&x.guardia_id==activeId()); if(i<0) throw new Error('Sin permiso.'); store.anomalias.splice(i,1); persist(); return; }
+    const {data,error}=await sb.from('anomalias').delete().eq('id',id).eq('guardia_id',activeId()).select();
+    if(error) throw error; if(!data.length) throw new Error('No se borró ningún registro (revisa las políticas RLS de DELETE).'); },
+  async updateGuardia(id,f){
+    if(LOCAL){ const g=store.guardias.find(x=>x.id==id); Object.assign(g,f); persist(); return pub(g); }
+    const {data,error}=await sb.from('guardias').update(f).eq('id',id).select(GUARD_COLS);
+    if(error) throw error; if(!data.length) throw new Error('No se actualizó ningún registro (revisa las políticas RLS de UPDATE).'); return data[0]; },
+  async deleteGuardia(id){
+    if(LOCAL){ store.anomalias.forEach(a=>{ if(a.guardia_id==id) a.guardia_id=null; }); const i=store.guardias.findIndex(x=>x.id==id); if(i>=0) store.guardias.splice(i,1); persist(); return; }
+    const {data,error}=await sb.from('guardias').delete().eq('id',id).select();
+    if(error) throw error; if(!data.length) throw new Error('No se borró ningún registro (revisa las políticas RLS de DELETE).'); }
+};
 
-/* ---------- UI general ---------- */
-function setCloud(ok){ $('cloud').className='cloud '+(ok?'':'off'); $('cloudTxt').textContent = ok ? '[NUBE CONECTADA: SUPABASE]' : '[SIN SEÑAL: REINTENTANDO]'; }
-let toastT; function toast(msg,bad){ const t=$('toast'); t.textContent=msg; t.className='toast'+(bad?' bad':''); t.hidden=false; clearTimeout(toastT); toastT=setTimeout(()=>t.hidden=true,4200); }
+/* ---------- Estado de conexión ---------- */
+function setCloud(state){
+  const el=$('cloud'); el.className='cloud '+(state==='ok'?'':state);
+  $('cloudTxt').textContent = state==='ok' ? '[NUBE CONECTADA: SUPABASE]' : state==='demo' ? '[MODO LOCAL: SIN SUPABASE]' : '[SIN SEÑAL: REINTENTANDO]';
+}
+let toastT; function toast(msg,bad){ const t=$('toast'); t.textContent=msg; t.className='toast'+(bad?' bad':''); t.hidden=false; clearTimeout(toastT); toastT=setTimeout(()=>t.hidden=true,3800); }
+
+/* ---------- Sesión de guardia ---------- */
+let guard = null;
+
+async function loadGuardias(){
+  try{
+    const list = await db.guardias();
+    $('selGuardia').innerHTML = list.length ? list.map(g=>`<option value="${esc(g.id)}">${esc(g.nombre)} - ${esc(g.turno)}</option>`).join('') : '<option value="">Sin guardias registrados</option>';
+    $('errA').textContent='';
+    if(!list.length) switchTab('b');
+  }catch(e){ $('errA').textContent='ERROR: no se pudo leer la tabla guardias. '+e.message; }
+}
 function switchTab(t){
   $('formA').hidden = t!=='a'; $('formB').hidden = t!=='b';
   $('tabA').setAttribute('aria-selected',t==='a'); $('tabB').setAttribute('aria-selected',t==='b');
 }
 document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>switchTab(b.dataset.tab));
-document.querySelectorAll('[data-close]').forEach(b=>b.onclick=()=>b.closest('.modal').hidden=true);
-$('newTurno').innerHTML = opts(TURNOS);
-
-/* ---------- Autenticación ---------- */
-async function getActiveUser(){
-  const {data,error} = await sb.auth.getUser();      // valida la sesión contra el servidor
-  return (error || !data?.user) ? null : data.user;
-}
-/* Si el usuario autenticado aún no tiene fila en guardias, se crea con los datos del registro */
-async function ensureGuardia(u){
-  const sel = await sb.from('guardias').select(GUARD_COLS).eq('user_id',u.id).maybeSingle();
-  if(sel.error) throw sel.error;
-  if(sel.data) return sel.data;
-  const m = u.user_metadata || {};
-  const ins = await sb.from('guardias').insert({user_id:u.id, nombre:m.nombre || u.email.split('@')[0], turno:m.turno || TURNOS[0]}).select(GUARD_COLS).single();
-  if(ins.error) throw ins.error;
-  return ins.data;
-}
-async function startShift(u){
-  user = u; guard = await ensureGuardia(u);
-  $('guardName').textContent = `${guard.nombre} | ${guard.turno}`;
-  $('login').hidden = true; $('app').hidden = false;
-  await Promise.all([loadCatalogs(), loadGuardias(), loadFeed()]);
-  startRealtime();
-}
-function resetUI(){
-  stopRealtime(); user = guard = null; rows = []; guardias = [];
-  $('app').hidden = true; $('login').hidden = false;
-  document.querySelectorAll('.modal:not(#login)').forEach(m=>m.hidden=true); switchTab('a');
-}
 
 $('formA').onsubmit = async e=>{
   e.preventDefault(); const btn=e.submitter; btn.disabled=true; $('errA').textContent='';
-  try{
-    const {error} = await sb.auth.signInWithPassword({email:$('emailA').value.trim(), password:$('passA').value});
-    if(error) throw error;
-    $('passA').value='';
-    const u = await getActiveUser(); if(!u) throw new Error('No se pudo verificar la sesión.');
-    await startShift(u);
-  }catch(err){ $('errA').textContent='ACCESO DENEGADO: '+err.message; }
+  try{ const g=await db.entrar($('selGuardia').value,$('passA').value); $('passA').value=''; await startShift(g); }
+  catch(err){ $('errA').textContent='ACCESO DENEGADO: '+err.message; }
   btn.disabled=false;
 };
 $('formB').onsubmit = async e=>{
@@ -340,150 +399,123 @@ $('formB').onsubmit = async e=>{
   if(p.length<6){ $('errB').textContent='La contraseña debe tener al menos 6 caracteres.'; return; }
   if(p!==$('passB2').value){ $('errB').textContent='Las contraseñas no coinciden.'; return; }
   const btn=e.submitter; btn.disabled=true;
-  try{
-    const {data,error} = await sb.auth.signUp({email:$('emailB').value.trim(), password:p, options:{data:{nombre:$('newNombre').value.trim(), turno:$('newTurno').value}}});
-    if(error) throw error;
-    e.target.reset();
-    if(!data.session){ switchTab('a'); toast('Cuenta creada. Confirma tu correo y luego inicia sesión.'); }
-    else { const u = await getActiveUser(); if(u) await startShift(u); }
-  }catch(err){ $('errB').textContent='ERROR AL REGISTRAR: '+err.message; }
+  try{ const g=await db.registrar($('newNombre').value.trim(),$('newTurno').value,p); e.target.reset(); await startShift(g); }
+  catch(err){ $('errB').textContent='ERROR AL REGISTRAR: '+err.message; }
   btn.disabled=false;
 };
-$('logout').onclick = async ()=>{ try{ await sb.auth.signOut(); }catch(e){} resetUI(); };
+$('logout').onclick = async ()=>{
+  stopRealtime(); try{ await db.salir(); }catch(e){}
+  guard=null; $('app').hidden=true; $('login').hidden=false; switchTab('a'); await loadGuardias();
+};
 
-/* ---------- Catálogos y alta de reportes ---------- */
+async function startShift(g){
+  guard=g; $('guardName').textContent = `${g.nombre} | ${g.turno}`;
+  $('login').hidden=true; $('app').hidden=false;
+  await loadCatalogs(); await loadFeed(); startRealtime();
+}
+
+/* ---------- Catálogos y formulario ---------- */
 async function loadCatalogs(){
   try{
-    const [c,a] = await Promise.all([sb.from('camaras').select('*').order('id'), sb.from('animatronicos').select('*').order('id')]);
-    if(c.error) throw c.error; if(a.error) throw a.error;
-    cams=c.data; anims=a.data;
-    const camH = cams.map(x=>`<option value="${esc(x.id)}">${esc(camLabel(x))}</option>`).join('');
-    const anH  = anims.map(x=>`<option value="${esc(x.id)}">${esc(x.nombre)}</option>`).join('');
-    $('fCam').innerHTML=camH; $('eCam').innerHTML=camH; $('fAnim').innerHTML=anH; $('eAnim').innerHTML=anH;
-    $('fTipo').innerHTML=opts(TIPOS);
-  }catch(e){ toast('No se pudieron cargar cámaras/animatrónicos: '+e.message,true); setCloud(false); }
+    const [c,a]=await Promise.all([db.catalogo('camaras'),db.catalogo('animatronicos')]);
+    $('fCam').innerHTML=c.map(x=>`<option value="${esc(x.id)}">${esc(camLabel(x))}</option>`).join('');
+    $('fAnim').innerHTML=a.map(x=>`<option value="${esc(x.id)}">${esc(x.nombre)}</option>`).join('');
+    $('eCam').innerHTML=$('fCam').innerHTML; $('eAnim').innerHTML=$('fAnim').innerHTML;
+  }catch(e){ toast('No se pudieron cargar cámaras/animatrónicos: '+e.message,true); setCloud('off'); }
 }
 $('formAlert').onsubmit = async e=>{
   e.preventDefault(); const btn=$('btnSend'); btn.disabled=true;
   try{
-    const {error} = await sb.from('anomalias').insert({
+    await db.addAnomalia({
       guardia_id:guard.id, camara_id:+$('fCam').value, animatronico_id:+$('fAnim').value,
-      tipo_anomalia:$('fTipo').value, nivel_riesgo:document.querySelector('input[name=riesgo]:checked').value, descripcion:$('fDesc').value.trim()
+      tipo_anomalia:$('fTipo').value, nivel_riesgo:document.querySelector('input[name=riesgo]:checked').value, descripcion:$('fDesc').value.trim(),
+      fecha_registro:new Date().toISOString()
     });
-    if(error) throw error;
-    $('fDesc').value=''; toast('Reporte transmitido a la nube.'); await loadFeed();
-  }catch(err){ toast('Falló la transmisión: '+err.message,true); }
+    $('fDesc').value=''; toast(LOCAL?'Reporte guardado en modo local.':'Reporte transmitido a la nube.');
+    await loadFeed();
+  }catch(err){ toast('Falló la transmisión: '+err.message,true); setCloud('off'); }
   btn.disabled=false;
 };
 
-/* ---------- Bitácora (SELECT para todos; botones solo para el autor) ---------- */
+/* ---------- Bitácora ---------- */
+let rows=[];
 async function loadFeed(){
-  const {data,error} = await sb.from('anomalias')
-    .select('*, guardias(id,user_id,nombre,turno), camaras(codigo_camara,nombre_zona), animatronicos(nombre)')
-    .order('fecha_registro',{ascending:false}).limit(100);
-  if(error){ setCloud(false); toast('Error al leer la bitácora: '+error.message,true); return; }
-  rows=data; setCloud(true); renderFeed();
+  try{ rows=await db.anomalias(); setCloud(LOCAL?'demo':'ok'); renderFeed(); }
+  catch(e){ setCloud('off'); toast('Error al leer la bitácora: '+e.message,true); }
 }
-const isMine = r => !!user && r.guardias?.user_id === user.id;
-
 function renderFeed(){
   const f=$('filter').value, list=f?rows.filter(r=>r.nivel_riesgo===f):rows;
   $('count').textContent=list.length;
   $('feed').innerHTML = list.length ? list.map(r=>{
-    const k=RISK[r.nivel_riesgo]||'bajo', d=new Date(r.fecha_registro), mine=isMine(r);
+    const k=RISK[r.nivel_riesgo]||'bajo', d=new Date(r.fecha_registro);
     return `<article class="cctv ${k}">
       <div class="top"><b><svg class="i"><use href="#i-cam"/></svg>${esc(camLabel(r.camaras))}</b><em>REC</em></div>
       <div class="body"><div class="anim">${esc(r.animatronicos?.nombre||'Desconocido')}</div>
         <div class="tipo">${esc(r.tipo_anomalia)}</div><div class="desc">${esc(r.descripcion||'Sin descripción.')}</div></div>
       <div class="bot"><span class="badge">${esc(String(r.nivel_riesgo||'').toUpperCase())}</span>
         <span class="who"><svg class="i"><use href="#i-user"/></svg>${esc(r.guardias?.nombre||'Anónimo')}</span></div>
-      <div class="stamp">${d.toLocaleDateString('es-MX')} ${d.toLocaleTimeString('es-MX')}${r.resuelto?' | <span class="ok">RESUELTO</span>':''}${mine?' | <span class="mine-tag">TUYO</span>':''}</div>
-      ${mine?`<div class="acts"><button class="btn sm" data-act="edit" data-id="${esc(r.id)}">EDITAR</button><button class="btn sm danger" data-act="del" data-id="${esc(r.id)}">ELIMINAR</button></div>`:''}
-    </article>`;
+      <div class="stamp">${d.toLocaleDateString('es-MX')} ${d.toLocaleTimeString('es-MX')}${r.resuelto?' | RESUELTO':''}</div>
+      ${isMine(r)?`<div class="acts"><button class="btn sm" data-act="edit" data-id="${esc(r.id)}">✏️ Editar</button><button class="btn sm danger" data-act="del" data-id="${esc(r.id)}">🗑️ Borrar</button></div>`:''}</article>`;
   }).join('') : `<div class="empty"><svg class="i"><use href="#i-radar"/></svg>SIN ANOMALÍAS DETECTADAS<br>Todas las cámaras reportan normalidad.</div>`;
 }
 $('filter').onchange=renderFeed;
+
+/* ---------- Propiedad (Ownership Control) ---------- */
+const activeId = () => localStorage.getItem('guardia_activa_id');
+const isMine = r => activeId() !== null && r.guardia_id == activeId();
+const opts = (arr,cur)=>(cur&&!arr.includes(cur)?[...arr,cur]:arr).map(v=>`<option${v===cur?' selected':''}>${esc(v)}</option>`).join('');
+const vals = id => [...$(id).options].map(o=>o.value);
+let editId=null;
+
 $('feed').onclick = e=>{
   const b=e.target.closest('button[data-act]'); if(!b) return;
-  const r=rows.find(x=>String(x.id)===b.dataset.id); if(!r||!isMine(r)) return;   // doble verificación en la UI
+  const r=rows.find(x=>String(x.id)===b.dataset.id); if(!r||!isMine(r)) return;
   b.dataset.act==='edit' ? openEditAn(r) : deleteAn(r);
 };
 function openEditAn(r){
   editId=r.id; $('errE').textContent='';
   $('eCam').value=r.camara_id; $('eAnim').value=r.animatronico_id ?? '';
-  $('eTipo').innerHTML=opts(TIPOS,r.tipo_anomalia);
+  $('eTipo').innerHTML=opts(vals('fTipo'),r.tipo_anomalia);
   const rad=document.querySelector(`input[name=riesgoE][value="${r.nivel_riesgo}"]`); if(rad) rad.checked=true;
   $('eDesc').value=r.descripcion||''; $('eRes').checked=!!r.resuelto; $('mAn').hidden=false;
 }
 $('formEditAn').onsubmit = async e=>{
   e.preventDefault(); const btn=e.submitter; btn.disabled=true; $('errE').textContent='';
   try{
-    const {data,error} = await sb.from('anomalias').update({
-      camara_id:+$('eCam').value, animatronico_id:+$('eAnim').value, tipo_anomalia:$('eTipo').value,
-      nivel_riesgo:document.querySelector('input[name=riesgoE]:checked').value, descripcion:$('eDesc').value.trim(), resuelto:$('eRes').checked
-    }).eq('id',editId).select();
-    if(error) throw error;
-    if(!data.length) throw new Error('No tienes permiso para editar este reporte.');   // RLS filtró la fila
+    await db.updateAnomalia(editId,{camara_id:+$('eCam').value, animatronico_id:+$('eAnim').value, tipo_anomalia:$('eTipo').value,
+      nivel_riesgo:document.querySelector('input[name=riesgoE]:checked').value, descripcion:$('eDesc').value.trim(), resuelto:$('eRes').checked});
     $('mAn').hidden=true; toast('Reporte actualizado.'); await loadFeed();
   }catch(err){ $('errE').textContent='ERROR: '+err.message; }
   btn.disabled=false;
 };
 async function deleteAn(r){
-  if(!confirm('¿Eliminar este reporte de forma permanente?')) return;
-  try{
-    const {data,error} = await sb.from('anomalias').delete().eq('id',r.id).select();
-    if(error) throw error;
-    if(!data.length) throw new Error('No tienes permiso para eliminar este reporte.');
-    toast('Reporte eliminado.'); await loadFeed();
-  }catch(err){ toast(err.message,true); }
+  if(!confirm('¿Borrar este reporte de forma permanente?')) return;
+  try{ await db.deleteAnomalia(r.id); toast('Reporte borrado.'); await loadFeed(); }
+  catch(err){ toast(err.message,true); }
 }
+document.querySelectorAll('[data-close]').forEach(b=>b.onclick=()=>b.closest('.modal').hidden=true);
 
-/* ---------- Guardias (solo se edita/elimina el registro propio) ---------- */
-async function loadGuardias(){
-  const {data,error} = await sb.from('guardias').select(GUARD_COLS).order('nombre');
-  if(error){ toast('No se pudo leer la tabla guardias: '+error.message,true); return; }
-  guardias=data; $('gCount').textContent=data.length;
-  $('guards').innerHTML = data.map(g=>{
-    const mine = g.user_id===user.id;
-    return `<div class="grow${mine?' me':''}"><span><svg class="i"><use href="#i-user"/></svg> ${esc(g.nombre)} <small>| ${esc(g.turno)} | ${esc(g.estado||'-')}</small>${mine?' <span class="mine-tag">(TÚ)</span>':''}</span>
-      ${mine?`<span class="acts" style="padding:0"><button class="btn sm" data-act="gedit">EDITAR</button><button class="btn sm danger" data-act="gdel">ELIMINAR CUENTA</button></span>`:''}</div>`;
-  }).join('');
-}
-$('guards').onclick = e=>{
-  const b=e.target.closest('button[data-act]'); if(!b) return;
-  b.dataset.act==='gedit' ? openEditGu() : deleteGu();
-};
-function openEditGu(){
-  $('errG').textContent=''; $('gNombre').value=guard.nombre;
-  $('gTurno').innerHTML=opts(TURNOS,guard.turno); $('gEstado').value=guard.estado||'Activo'; $('mGu').hidden=false;
-}
+/* ---------- Perfil y cuenta ---------- */
+$('btnPerfil').onclick = ()=>{ $('errG').textContent=''; $('gNombre').value=guard.nombre; $('gTurno').innerHTML=opts(vals('newTurno'),guard.turno); $('mGu').hidden=false; };
 $('formEditGu').onsubmit = async e=>{
   e.preventDefault(); const btn=e.submitter; btn.disabled=true; $('errG').textContent='';
   try{
-    const {data,error} = await sb.from('guardias').update({nombre:$('gNombre').value.trim(), turno:$('gTurno').value, estado:$('gEstado').value})
-      .eq('id',guard.id).eq('user_id',user.id).select(GUARD_COLS);
-    if(error) throw error;
-    if(!data.length) throw new Error('Solo puedes editar tu propio registro.');
-    guard=data[0]; $('guardName').textContent=`${guard.nombre} | ${guard.turno}`;
-    $('mGu').hidden=true; toast('Perfil actualizado.'); await Promise.all([loadGuardias(), loadFeed()]);
+    guard=await db.updateGuardia(guard.id,{nombre:$('gNombre').value.trim(), turno:$('gTurno').value});
+    localStorage.setItem('guardia_activa_nombre',guard.nombre);
+    $('guardName').textContent=`${guard.nombre} | ${guard.turno}`; $('mGu').hidden=true; toast('Perfil actualizado.'); await loadFeed();
   }catch(err){ $('errG').textContent='ERROR: '+err.message; }
   btn.disabled=false;
 };
-async function deleteGu(){
-  if(!confirm('¿Eliminar tu cuenta de guardia? Tus reportes quedarán como "Anónimo".')) return;
-  try{
-    const {data,error} = await sb.from('guardias').delete().eq('id',guard.id).eq('user_id',user.id).select();
-    if(error) throw error;
-    if(!data.length) throw new Error('Solo puedes eliminar tu propio registro.');
-    const r = await sb.rpc('eliminar_mi_cuenta');            // borra también el usuario de auth (ver SQL)
-    if(r.error) console.warn('No se pudo borrar el usuario de auth:', r.error.message);
-    await sb.auth.signOut({scope:'local'}); resetUI(); toast('Cuenta eliminada.');
-  }catch(err){ toast(err.message,true); }
-}
+$('btnBaja').onclick = async ()=>{
+  if(!confirm('¿Eliminar tu cuenta de guardia? Esta acción no se puede deshacer.')) return;
+  try{ await db.deleteGuardia(guard.id); $('logout').click(); toast('Cuenta eliminada.'); }
+  catch(err){ toast('No se pudo eliminar: '+err.message,true); }
+};
 
 /* ---------- Tiempo real ---------- */
+let channel=null;
 function startRealtime(){
-  if(channel) return;
+  if(LOCAL||channel) return;
   channel=sb.channel('anomalias-feed').on('postgres_changes',{event:'*',schema:'public',table:'anomalias'},loadFeed).subscribe();
 }
 function stopRealtime(){ if(channel){ sb.removeChannel(channel); channel=null; } }
@@ -492,13 +524,8 @@ function stopRealtime(){ if(channel){ sb.removeChannel(channel); channel=null; }
 const tick=()=>{ const d=new Date(); $('clock').textContent=d.toLocaleDateString('es-MX')+'  '+d.toLocaleTimeString('es-MX'); };
 tick(); setInterval(tick,1000);
 
-/* ---------- Arranque: verificar sesión actual ---------- */
-(async()=>{
-  if(!sb){ $('errA').textContent='ERROR: no se pudo cargar el SDK de Supabase.'; return; }
-  sb.auth.onAuthStateChange(ev=>{ if(ev==='SIGNED_OUT' && user) resetUI(); });
-  try{ const u = await getActiveUser(); if(u) await startShift(u); }
-  catch(e){ $('errA').textContent='ERROR: '+e.message; }
-})();
+/* ---------- Arranque ---------- */
+(async()=>{ await loadGuardias(); try{ const g=await db.sesion(); if(g) startShift(g); }catch(e){} })();
 </script>
 </body>
 </html>
