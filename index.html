@@ -256,6 +256,10 @@ textarea{resize:vertical;min-height:96px}
         <div><label for="gTurno">TURNO</label><select id="gTurno"></select></div>
         
       </div>
+      <div class="row2">
+        <div><label for="gPass">NUEVA CONTRASEÑA</label><input type="password" id="gPass" autocomplete="new-password" placeholder="Dejar en blanco para conservar"></div>
+        <div><label for="gPass2">CONFIRMAR NUEVA CONTRASEÑA</label><input type="password" id="gPass2" autocomplete="new-password" placeholder="Confirmar contraseña"></div>
+      </div>
       <div class="err" id="errG" role="alert"></div>
       <div class="row2"><button class="btn" type="submit">GUARDAR CAMBIOS</button><button class="btn" type="button" data-close>CANCELAR</button></div>
     </form>
@@ -496,13 +500,22 @@ async function deleteAn(r){
 document.querySelectorAll('[data-close]').forEach(b=>b.onclick=()=>b.closest('.modal').hidden=true);
 
 /* ---------- Perfil y cuenta ---------- */
-$('btnPerfil').onclick = ()=>{ $('errG').textContent=''; $('gNombre').value=guard.nombre; $('gTurno').innerHTML=opts(vals('newTurno'),guard.turno); $('mGu').hidden=false; };
+$('btnPerfil').onclick = ()=>{ $('errG').textContent=''; $('gPass').value=''; $('gPass2').value=''; $('gNombre').value=guard.nombre; $('gTurno').innerHTML=opts(vals('newTurno'),guard.turno); $('mGu').hidden=false; };
 $('formEditGu').onsubmit = async e=>{
-  e.preventDefault(); const btn=e.submitter; btn.disabled=true; $('errG').textContent='';
+  e.preventDefault(); $('errG').textContent='';
+  const p1=$('gPass').value, p2=$('gPass2').value, cambiaClave = p1!=='' || p2!=='';
+  if(cambiaClave){
+    if(p1.length<6){ $('errG').textContent='La nueva contraseña debe tener al menos 6 caracteres.'; return; }
+    if(p1!==p2){ $('errG').textContent='Las contraseñas no coinciden.'; return; }
+  }
+  const btn=e.submitter; btn.disabled=true;
   try{
-    guard=await db.updateGuardia(guard.id,{nombre:$('gNombre').value.trim(), turno:$('gTurno').value});
+    const cambios={nombre:$('gNombre').value.trim(), turno:$('gTurno').value};
+    if(cambiaClave) cambios.contrasena=p1;            // sin texto en los campos, la contraseña actual no se toca
+    guard=await db.updateGuardia(guard.id,cambios);
+    $('gPass').value=''; $('gPass2').value='';
     localStorage.setItem('guardia_activa_nombre',guard.nombre);
-    $('guardName').textContent=`${guard.nombre} | ${guard.turno}`; $('mGu').hidden=true; toast('Perfil actualizado.'); await loadFeed();
+    $('guardName').textContent=`${guard.nombre} | ${guard.turno}`; $('mGu').hidden=true; toast(cambiaClave?'Perfil y contraseña actualizados correctamente.':'Perfil actualizado.'); await loadFeed();
   }catch(err){ $('errG').textContent='ERROR: '+err.message; }
   btn.disabled=false;
 };
